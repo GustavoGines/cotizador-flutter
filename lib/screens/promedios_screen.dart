@@ -26,7 +26,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
   String _tipo = 'blue';
   final String _tipoValor = 'venta';
   int? _anio; // null => Todos
-  int? _mes; // null => Todos
+  int? _mes;  // null => Todos
 
   // Paginación por año (solo si _anio == null && _mes == null)
   int _yearPageIndex = 0;
@@ -41,7 +41,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
 
   late Future<List<Promedio>> _future;
 
-  // ScrollControllers para la tabla (evita error de Scrollbar sin controller)
+  // ScrollControllers para la tabla
   final _tableVController = ScrollController();
   final _tableHController = ScrollController();
 
@@ -88,8 +88,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
   // Helpers
   String _mesEnTexto(int mes) {
     final date = DateTime(DateTime.now().year, mes, 1);
-    return toBeginningOfSentenceCase(DateFormat.MMMM('es_AR').format(date)) ??
-        '';
+    return toBeginningOfSentenceCase(DateFormat.MMMM('es_AR').format(date)) ?? '';
   }
 
   List<int> _years() {
@@ -185,9 +184,14 @@ class _PromediosScreenState extends State<PromediosScreen> {
             titleInfo = _anio == null
                 ? "Todos los años"
                 : (_mes == null
-                      ? "Año $_anio — todos los meses"
-                      : "Año $_anio — mes ${_mesEnTexto(_mes!)} ($_mes)");
+                    ? "Año $_anio — todos los meses"
+                    : "Año $_anio — mes ${_mesEnTexto(_mes!)} ($_mes)");
           }
+
+          // Calculamos densidad de etiquetas para el eje X (evita solapamiento)
+          final int labelStep = ((visibleData.length) / (_compactCharts ? 8 : 10))
+              .ceil()
+              .clamp(1, 12);
 
           // ✅ Un único scroll vertical
           return ListView(
@@ -211,29 +215,21 @@ class _PromediosScreenState extends State<PromediosScreen> {
                       SizedBox(
                         width: 140,
                         child: DropdownButtonFormField<String>(
-                          initialValue: _tipo,
+                          value: _tipo,
                           decoration: const InputDecoration(
                             labelText: "Tipo de dólar",
                           ),
                           items: const [
-                            DropdownMenuItem(
-                              value: 'oficial',
-                              child: Text('Oficial'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'blue',
-                              child: Text('Blue'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'tarjeta',
-                              child: Text('Tarjeta'),
-                            ),
+                            DropdownMenuItem(value: 'oficial', child: Text('Oficial')),
+                            DropdownMenuItem(value: 'blue', child: Text('Blue')),
+                            DropdownMenuItem(value: 'tarjeta', child: Text('Tarjeta')),
                             DropdownMenuItem(value: 'mep', child: Text('MEP')),
                             DropdownMenuItem(value: 'ccl', child: Text('CCL')),
                           ],
                           onChanged: (v) => _onTipoChanged(v!),
                         ),
                       ),
+
                       // Año + Mes lado a lado sin overflow
                       LayoutBuilder(
                         builder: (context, constraints) {
@@ -247,25 +243,14 @@ class _PromediosScreenState extends State<PromediosScreen> {
                                 child: DropdownButtonFormField<int?>(
                                   isDense: true,
                                   isExpanded: true,
-                                  initialValue: _anio,
+                                  value: _anio,
                                   decoration: const InputDecoration(
                                     labelText: "Año",
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                   ),
                                   items: [
-                                    const DropdownMenuItem<int?>(
-                                      value: null,
-                                      child: Text("Todos"),
-                                    ),
-                                    ..._years().map(
-                                      (y) => DropdownMenuItem<int?>(
-                                        value: y,
-                                        child: Text("$y"),
-                                      ),
-                                    ),
+                                    const DropdownMenuItem<int?>(value: null, child: Text("Todos")),
+                                    ..._years().map((y) => DropdownMenuItem<int?>(value: y, child: Text("$y"))),
                                   ],
                                   onChanged: _onAnioChanged,
                                 ),
@@ -276,35 +261,25 @@ class _PromediosScreenState extends State<PromediosScreen> {
                                 child: DropdownButtonFormField<int?>(
                                   isDense: true,
                                   isExpanded: true,
-                                  initialValue: _mes,
+                                  value: _mes,
                                   decoration: const InputDecoration(
                                     labelText: "Mes",
-                                    contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                                   ),
                                   items: [
-                                    const DropdownMenuItem<int?>(
-                                      value: null,
-                                      child: Text("Todos"),
-                                    ),
+                                    const DropdownMenuItem<int?>(value: null, child: Text("Todos")),
                                     ..._months().map(
-                                      (m) => DropdownMenuItem<int?>(
-                                        value: m,
-                                        child: Text("${_mesEnTexto(m)} ($m)"),
-                                      ),
+                                      (m) => DropdownMenuItem<int?>(value: m, child: Text("${_mesEnTexto(m)} ($m)")),
                                     ),
                                   ],
-                                  onChanged: (_anio == null)
-                                      ? null
-                                      : _onMesChanged,
+                                  onChanged: (_anio == null) ? null : _onMesChanged,
                                 ),
                               ),
                             ],
                           );
                         },
                       ),
+
                       // Toggle gráfico
                       SizedBox(
                         width: 220,
@@ -315,20 +290,12 @@ class _PromediosScreenState extends State<PromediosScreen> {
                             Expanded(
                               child: SegmentedButton<bool>(
                                 segments: const [
-                                  ButtonSegment(
-                                    value: true,
-                                    label: Text("Barras"),
-                                  ),
-                                  ButtonSegment(
-                                    value: false,
-                                    label: Text("Línea"),
-                                  ),
+                                  ButtonSegment(value: true, label: Text("Barras")),
+                                  ButtonSegment(value: false, label: Text("Línea")),
                                 ],
                                 selected: {_barChart},
-                                onSelectionChanged: (s) =>
-                                    setState(() => _barChart = s.first),
-                                showSelectedIcon:
-                                    false, // 👈 evita que el tick empuje el texto
+                                onSelectionChanged: (s) => setState(() => _barChart = s.first),
+                                showSelectedIcon: false, // no muestra check (ahorra ancho)
                               ),
                             ),
                           ],
@@ -347,18 +314,13 @@ class _PromediosScreenState extends State<PromediosScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      titleInfo,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
+                    Text(titleInfo, style: const TextStyle(fontWeight: FontWeight.w600)),
                     if (_anio == null && _mes == null && _yearsPages.isNotEmpty)
                       Row(
                         children: [
                           IconButton(
                             tooltip: "Anterior",
-                            onPressed: _yearPageIndex > 0
-                                ? () => setState(() => _yearPageIndex--)
-                                : null,
+                            onPressed: _yearPageIndex > 0 ? () => setState(() => _yearPageIndex--) : null,
                             icon: const Icon(Icons.chevron_left),
                           ),
                           Text("${_yearPageIndex + 1}/${_yearsPages.length}"),
@@ -389,8 +351,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
                     child: Scrollbar(
                       controller: _tableHController,
                       thumbVisibility: false,
-                      notificationPredicate: (notif) =>
-                          notif.metrics.axis == Axis.horizontal,
+                      notificationPredicate: (notif) => notif.metrics.axis == Axis.horizontal,
                       child: SingleChildScrollView(
                         controller: _tableHController,
                         scrollDirection: Axis.horizontal,
@@ -406,14 +367,10 @@ class _PromediosScreenState extends State<PromediosScreen> {
                               cells: [
                                 DataCell(Text(p.anio.toString())),
                                 DataCell(Text(_mesEnTexto(p.mes))),
-                                DataCell(
-                                  Text(
-                                    currency.format(p.promedio),
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
+                                DataCell(Text(
+                                  currency.format(p.promedio),
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                )),
                               ],
                             );
                           }).toList(),
@@ -440,35 +397,31 @@ class _PromediosScreenState extends State<PromediosScreen> {
                       scrollDirection: Axis.horizontal,
                       padding: EdgeInsets.zero,
                       child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minWidth: chartWidth,
-                          maxWidth: chartWidth,
-                        ),
+                        constraints: BoxConstraints(minWidth: chartWidth, maxWidth: chartWidth),
                         child: _barChart
                             ? _BarChartPromedios(
                                 data: visibleData,
                                 monthName: _mesEnTexto,
+                                labelStep: labelStep, // 👈 espaciado de etiquetas
                               )
                             : _LineChartPromedios(
                                 data: visibleData,
                                 monthName: _mesEnTexto,
+                                labelStep: labelStep, // 👈 espaciado de etiquetas
                               ),
                       ),
                     );
                   },
                 ),
               ),
+
               const SizedBox(height: 30),
               Text(
                 "Desarrollado por Gustavo Ginés\nUTN – FRRe – TUP",
                 textAlign: TextAlign.center,
-                // ignore: deprecated_member_use
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(
-                    context,
-                  // ignore: deprecated_member_use
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
             ],
@@ -483,7 +436,18 @@ class _PromediosScreenState extends State<PromediosScreen> {
 class _BarChartPromedios extends StatelessWidget {
   final List<Promedio> data;
   final String Function(int) monthName;
-  const _BarChartPromedios({required this.data, required this.monthName});
+  final int labelStep;
+
+  const _BarChartPromedios({
+    required this.data,
+    required this.monthName,
+    this.labelStep = 1,
+  });
+
+  String _abbrMes(int m) {
+    const abbr = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return (m >= 1 && m <= 12) ? abbr[m-1] : '$m';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -520,20 +484,18 @@ class _BarChartPromedios extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 40,
+              reservedSize: 28, // 1 línea
               getTitlesWidget: (value, meta) {
                 final idx = value.toInt();
-                if (idx < 0 || idx >= sorted.length) {
-                  return const SizedBox.shrink();
-                }
+                if (idx < 0 || idx >= sorted.length) return const SizedBox.shrink();
+                if (idx % labelStep != 0) return const SizedBox.shrink();
+
                 final p = sorted[idx];
+                final yy = (p.anio % 100).toString().padLeft(2, '0');
+                final label = '${_abbrMes(p.mes)}-$yy'; // p.ej. Ene-25
                 return Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    "${monthName(p.mes)}\n${p.anio}",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 9),
-                  ),
+                  child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10)),
                 );
               },
             ),
@@ -548,7 +510,18 @@ class _BarChartPromedios extends StatelessWidget {
 class _LineChartPromedios extends StatelessWidget {
   final List<Promedio> data;
   final String Function(int) monthName;
-  const _LineChartPromedios({required this.data, required this.monthName});
+  final int labelStep;
+
+  const _LineChartPromedios({
+    required this.data,
+    required this.monthName,
+    this.labelStep = 1,
+  });
+
+  String _abbrMes(int m) {
+    const abbr = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return (m >= 1 && m <= 12) ? abbr[m-1] : '$m';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -581,20 +554,18 @@ class _LineChartPromedios extends StatelessWidget {
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 40,
+              reservedSize: 28, // 1 línea
               getTitlesWidget: (value, meta) {
                 final idx = value.toInt();
-                if (idx < 0 || idx >= sorted.length) {
-                  return const SizedBox.shrink();
-                }
+                if (idx < 0 || idx >= sorted.length) return const SizedBox.shrink();
+                if (idx % labelStep != 0) return const SizedBox.shrink();
+
                 final p = sorted[idx];
+                final yy = (p.anio % 100).toString().padLeft(2, '0');
+                final label = '${_abbrMes(p.mes)}-$yy';
                 return Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    "${monthName(p.mes)}\n${p.anio}",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 9),
-                  ),
+                  child: Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10)),
                 );
               },
             ),
