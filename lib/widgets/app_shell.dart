@@ -54,6 +54,7 @@ class AppShell extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: Colors.white70),
+                // ignore: deprecated_member_use
                 color: Colors.white.withOpacity(0.08),
               ),
               child: Text(
@@ -82,7 +83,7 @@ class AppShell extends StatelessWidget {
                     width: 48,
                     height: 48,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) =>
+                    errorBuilder: (_, _, _) =>
                         const Icon(Icons.apps, size: 48),
                   ),
                 ),

@@ -215,7 +215,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
                       SizedBox(
                         width: 140,
                         child: DropdownButtonFormField<String>(
-                          value: _tipo,
+                          initialValue: _tipo,
                           decoration: const InputDecoration(
                             labelText: "Tipo de dólar",
                           ),
@@ -243,7 +243,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
                                 child: DropdownButtonFormField<int?>(
                                   isDense: true,
                                   isExpanded: true,
-                                  value: _anio,
+                                  initialValue: _anio,
                                   decoration: const InputDecoration(
                                     labelText: "Año",
                                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -261,7 +261,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
                                 child: DropdownButtonFormField<int?>(
                                   isDense: true,
                                   isExpanded: true,
-                                  value: _mes,
+                                  initialValue: _mes,
                                   decoration: const InputDecoration(
                                     labelText: "Mes",
                                     contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -421,6 +421,7 @@ class _PromediosScreenState extends State<PromediosScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
+                  // ignore: deprecated_member_use
                   color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 ),
               ),
