@@ -1,0 +1,144 @@
+# -----------------------------
+# Flutter App .gitignore
+# Safe defaults + Android/iOS/web/desktop + CI-friendly
+# -----------------------------
+
+# ========== General OS / editors ==========
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ / Android Studio
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code (uncomment if you don't want to version VSCode settings)
+#.vscode/
+
+# ========== Flutter / Dart / Pub ==========
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+/build/
+/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+
+# Lockfile: in apps suele ignorarse (en libs se versiona)
+pubspec.lock
+
+# Symbolication / Obfuscation
+app.*.symbols
+app.*.map.json
+
+# ========== Android ==========
+# Build system & local config
+.android/
+.gradle/
+/android/.gradle/
+/android/.cxx/
+/android/local.properties
+/android/**/generated/
+/android/**/intermediates/
+/android/**/outputs/
+/android/**/signing/
+/android/captures/
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Keystore & signing (NO subir claves)
+/android/key.properties
+/android/app/my-release-key.jks
+/android/app/*.keystore
+/android/app/*.jks
+
+# NDK / misc
+/android/**/ndk/
+/android/**/obj/
+
+# Google Services (generalmente es seguro versionarlo; si preferís ocultarlo, descomentá)
+#/android/app/google-services.json
+
+# ========== iOS ==========
+# CocoaPods
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/ephemeral/
+/ios/Flutter/App.framework
+/ios/Flutter/Flutter.podspec
+/ios/ServiceDefinitions.json
+
+# Xcode user data
+/ios/**/xcuserdata/
+/ios/**/xcshareddata/WorkspaceSettings.xcsettings
+/ios/.generated/
+
+# Derived data / build
+/ios/DerivedData/
+/ios/.dart_tool/
+/ios/Runner/GeneratedPluginRegistrant.*
+
+# Firebase (generalmente seguro versionar; si querés ocultarlo, descomentá)
+#/ios/Runner/GoogleService-Info.plist
+
+# ========== macOS ==========
+/macos/Flutter/GeneratedPluginRegistrant.swift
+/macos/Flutter/ephemeral/
+/macos/Pods/
+/macos/**/xcuserdata/
+
+# ========== Windows ==========
+/windows/flutter/ephemeral/
+/windows/**/GeneratedPluginRegistrant.*
+/windows/**/CMakeFiles/
+/windows/**/CMakeCache.txt
+/windows/**/cmake_install.cmake
+
+# ========== Linux ==========
+/linux/flutter/ephemeral/
+/linux/**/CMakeFiles/
+/linux/**/CMakeCache.txt
+/linux/**/cmake_install.cmake
+/linux/**/Makefile
+
+# ========== Web ==========
+# build está cubierto arriba; agrega extras si usás herramientas específicas
+# /.firebase/ (si usás hosting y no querés versionarlo)
+
+# ========== FVM (si lo usás) ==========
+.fvm/
+.flutter_version
+
+# ========== Fastlane (si generás builds iOS/Android) ==========
+# fastlane/playstore o screenshots pueden ser grandes
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# ========== Misc local tooling ==========
+.melos_tool/
+.melos_tool/**
+
+# ========== Notes ==========
+# - Si publicás el APK desde CI, mantené las claves fuera del repo (secrets).
+# - `google-services.json` y `GoogleService-Info.plist` pueden versionarse; descomentalos arriba si preferís ocultarlos.
+# - Ajustá `pubspec.lock` según tu política (apps: ignorar; libs: versionar).
